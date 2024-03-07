@@ -287,7 +287,7 @@ class Excite_H_Op:
         if self.sanity_checks:
             tst = tm.eps_r_noop(r_, B, A_)
             if la.norm(tst) > self.sanity_tol:
-                log.warning("Sanity check failed: Gauge-fixing violation! " 
+                print("warning: Sanity check failed: Gauge-fixing violation! " 
                             + str(la.norm(tst)))
 
         if self.sanity_checks:
@@ -295,7 +295,7 @@ class Excite_H_Op:
             for s in range(self.q):
                 B2[s] = l_sqrt_i.dot(x.dot(Vri_[s]))
             if la.norm(B - B2) / la.norm(B) > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! Bad Vri!")
+                print("warning: Sanity Fail in calc_BHB! Bad Vri!")
         
         BA_ = tm.calc_AA(B, A_)
         AB = tm.calc_AA(A, B)
@@ -320,7 +320,7 @@ class Excite_H_Op:
                 norm = 1
             tst = la.norm(y - y2) / norm
             if tst > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! Bad M. Off by: %g", tst)
+                print("warning: Sanity Fail in calc_BHB! Bad M. Off by: %g" % (tst))
 
         Mh = M.conj().T.copy(order='C')
         
@@ -387,16 +387,16 @@ class Excite_H_Op:
             z = y_pi - sp.exp(+1.j * p) * tm.eps_r_noop(y_pi, A, A_)
             tst = la.norm((y - z).ravel()) / la.norm(y.ravel())
             if tst > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! Bad x_pi. Off by: %g", tst)
+                print("warning: Sanity Fail in calc_BHB! Bad x_pi. Off by: %g" % (tst))
         
         res += l_sqrt.dot(tm.eps_r_noop(y_pi, A, Vri_))
         
         if self.sanity_checks:
             expval = m.adot(x, res) / m.adot(x, x)
             if expval < -self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! H is not pos. semi-definite (%s)", expval)
+                print("warning: Sanity Fail in calc_BHB! H is not pos. semi-definite (%s)" % (expval))
             if abs(expval.imag) > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! H is not Hermitian (%s)", expval.imag)
+                print("warning: Sanity Fail in calc_BHB! H is not Hermitian (%s)" % (expval.imag))
         
         return res, M, y_pi   
     
@@ -404,7 +404,7 @@ class Excite_H_Op:
         x = v.reshape((self.D, (self.q - 1)*self.D))
         
         self.calls += 1
-        log.debug("Calls: %u", self.calls)
+        print("debug: Calls: %u" % (self.calls))
         
         res, self.M_prev, self.y_pi_prev = self.calc_BHB(x, self.p, self.tdvp, 
                                                          self.tdvp2, 
@@ -623,7 +623,7 @@ class Excite_H_Op_tp:
         if self.sanity_checks:
             tst = tm.eps_r_noop(r_, B, A_)
             if la.norm(tst) > self.sanity_tol:
-                log.warning("Sanity check failed: Gauge-fixing violation! " 
+                print("warning: Sanity check failed: Gauge-fixing violation! " 
                             + str(la.norm(tst)))
 
         if self.sanity_checks:
@@ -631,7 +631,7 @@ class Excite_H_Op_tp:
             for s in range(self.q):
                 B2[s] = l_sqrt_i.dot(x.dot(m.mmul(V_[s], r__sqrt_i)))
             if la.norm(B - B2) / la.norm(B) > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! Bad Vri!")
+                print("warning: Sanity Fail in calc_BHB! Bad Vri!")
 
         y = tm.eps_l_noop(l, B, A)
         M = pinv_1mE(y, [A_], [A], self.l_mix_2_1, self.r_mix_2_1,
@@ -648,7 +648,7 @@ class Excite_H_Op_tp:
                 norm = 1
             tst = la.norm(y - y2) / norm
             if tst > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! Bad M. Off by: %g", tst)
+                print("warning: Sanity Fail in calc_BHB! Bad M. Off by: %g" % (tst))
 #        if pseudo:
 #            M = M - l * m.adot(r_, M)
         Mh = M.conj().T.copy(order='C')
@@ -718,7 +718,7 @@ class Excite_H_Op_tp:
             z = y_pi - sp.exp(+1.j * p) * tm.eps_r_noop(y_pi, A, A_)
             tst = la.norm((y - z).ravel()) / la.norm(y.ravel())
             if tst > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! Bad x_pi. Off by: %g", tst)
+                print("warning: Sanity Fail in calc_BHB! Bad x_pi. Off by: %g" % (tst))
         
         res_ls += tm.eps_r_noop(m.mmul(y_pi, r__sqrt_i), A, V_)
         
@@ -729,9 +729,9 @@ class Excite_H_Op_tp:
             expval = m.adot(x, res) / m.adot(x, x)
             #print "expval = " + str(expval)
             if expval < -self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! H is not pos. semi-definite (%s)", expval)
+                print("warning: Sanity Fail in calc_BHB! H is not pos. semi-definite (%s)" % (expval))
             if abs(expval.imag) > self.sanity_tol:
-                log.warning("Sanity Fail in calc_BHB! H is not Hermitian (%s)", expval.imag)
+                print("warning: Sanity Fail in calc_BHB! H is not Hermitian (%s)" % (expval.imag))
         
         return res, M, y_pi  
     
@@ -739,7 +739,7 @@ class Excite_H_Op_tp:
         x = v.reshape((self.D, (self.q - 1)*self.D))
         
         self.calls += 1
-        log.debug("Calls: %u", self.calls)
+        print("debug: Calls: %u" % (self.calls))
         
         res, self.M_prev, self.y_pi_prev = self.calc_BHB(x, self.p, self.tdvp, 
                                                          self.tdvp2, 

@@ -148,7 +148,7 @@ def pinv_1mE(x, A1, A2, lL, rL, p=0, left=False, pseudo=True, tol=1E-6, maxiter=
     res, info = solver(op, x, x0=res, maxiter=maxiter, tol=tol) #tol: norm( b - A*x ) / norm( b )
     
     if info != 0:
-        log.warning("Warning: Did not converge on solution for ppinv! %s", sc_data)
+        print("warning: Warning: Did not converge on solution for ppinv! %s" % (sc_data))
     
     #Test
     if sanity_checks and x.shape[0] > 1:
@@ -160,7 +160,7 @@ def pinv_1mE(x, A1, A2, lL, rL, p=0, left=False, pseudo=True, tol=1E-6, maxiter=
             d = la.norm(RHS_test - x) / norm
         #d = abs(RHS_test - x).sum() / abs(x).sum()
         if not d < tol:
-            log.warning("Sanity check failed: Bad ppinv solution! Off by: %s %s", d, sc_data)
+            print("warning: Sanity check failed: Bad ppinv solution! Off by: %s %s" % (d, sc_data))
     
     res = res.reshape((D, D))
         
@@ -174,7 +174,7 @@ def pinv_1mE(x, A1, A2, lL, rL, p=0, left=False, pseudo=True, tol=1E-6, maxiter=
             res_brute = pinvE.dot(x).reshape((D, D))
         
         if not la.norm(res - res_brute) < la.norm(res) * tol * 10:
-            log.warning("Brute check fail in calc_PPinv (left: %s): Bad brute check! Off by: %g %s", left, la.norm(res - res_brute) / la.norm(res), sc_data)
+            print("warning: Brute check fail in calc_PPinv (left: %s): Bad brute check! Off by: %g %s" % (left, la.norm(res - res_brute) / la.norm(res), sc_data))
         
         if sanity_checks and x.shape[0] > 1:
             RHS_test = op.matvec(res_brute.ravel())
@@ -185,7 +185,7 @@ def pinv_1mE(x, A1, A2, lL, rL, p=0, left=False, pseudo=True, tol=1E-6, maxiter=
                 d2 = la.norm(RHS_test - x) / norm
             #d = abs(RHS_test - x).sum() / abs(x).sum()
             if not d2 < tol:
-                log.warning("Sanity check failed: Bad ppinv brute solution! Off by: %s %s", d2, sc_data)
+                print("warning: Sanity check failed: Bad ppinv brute solution! Off by: %s %s" % (d2, sc_data))
     
     out[:] = res
     

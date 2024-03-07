@@ -517,7 +517,7 @@ def evolve_split(mps, ham, ham_sites, dtau, num_steps, ham_is_Herm=True, HMPO=No
             'num_krylov': mb,
             'num_steps': nstep}
         if not conv:
-            log.warn("Krylov exp(M)*v solver for An did not converge in %u steps for site %u.", nstep, n)
+            print("warn: Krylov exp(M)*v solver for An did not converge in %u steps for site %u." % (nstep, n))
         mps.A[n] = An.reshape((mps.q[n], mps.D[n - 1], mps.D[n]))
         mps.A[n] /= sp.sqrt(mm.adot(mps.A[n], mps.A[n]))
         return norm_est, expm_info
@@ -553,7 +553,7 @@ def evolve_split(mps, ham, ham_sites, dtau, num_steps, ham_is_Herm=True, HMPO=No
                 'num_krylov': mb,
                 'num_steps': nstep}
             if not conv:
-                log.warn("Krylov exp(M)*v solver for AAn did not converge in %u steps for site %u.", nstep, n)
+                print("warn: Krylov exp(M)*v solver for AAn did not converge in %u steps for site %u." % (nstep, n))
 
         AAn = AAn.reshape([mps.q[n], mps.q[n+1], mps.D[n-1], mps.D[n+1]])
         An, G, Anp1, s_rest = split_twosite(AAn, D_max, min_schmidt)
@@ -596,7 +596,7 @@ def evolve_split(mps, ham, ham_sites, dtau, num_steps, ham_is_Herm=True, HMPO=No
             'num_krylov': mb,
             'num_steps': nstep}
         if not conv:
-            log.warn("Krylov exp(M)*v solver for G did not converge in %u steps for site %u.", nstep, n)
+            print("warn: Krylov exp(M)*v solver for G did not converge in %u steps for site %u." % (nstep, n))
         G = G.reshape(Gshp)
         G /= sp.sqrt(mm.adot(G, G))
         return G, expm_info

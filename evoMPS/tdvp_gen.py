@@ -644,7 +644,7 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
                                                             l_si[n - 1], r_si[n + 1],
                                                             dD_max=dD_maxes[n], sv_tol=sv_tol)
                 if BB12[n] is None:
-                    log.warn("calc_BB_2s: Could not calculate BB_2s at n=%u", n)
+                    print("warn: calc_BB_2s: Could not calculate BB_2s at n=%u" % (n))
 
         return BB12, BB21, dD
     
@@ -918,7 +918,7 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
                         if not BB21[n] is None:
                             self.A[n][:, oldD[n - 1]:, :oldD[n]] = -1.j * sp.sqrt(dtau) * BB21[n]
                         
-                    log.info("Dyn. expanded! New D: %s", self.D)
+                    print("info: Dyn. expanded! New D: %s" % (self.D))
                     self.eta_sq = oldeta
                     self.etaBB_sq = oldetaBB
                     self.eta = sp.sqrt(self.eta_sq.sum())
@@ -1003,14 +1003,14 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
                     res = tau**2 + self.eta_sq.sum().real
                 else:
                     res = tau**2 + h_expect_0.real
-                log.debug((tau, res, "punishing negative tau!"))
+                print("debug:", (tau, res, "punishing negative tau!"))
                 taus.append(tau)
                 ress.append(res)
                 hs.append(h_expect_0.real)
                 return res
             try:
                 i = taus.index(tau)
-                log.debug((tau, ress[i], "from stored"))
+                print("debug:", (tau, ress[i], "from stored"))
                 return ress[i]
             except ValueError:
                 for n in range(1, self.N + 1):
@@ -1040,7 +1040,7 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
                             h_exp += self.expect_3s(self.ham[n], n).real
                     res = h_exp
                 
-                log.debug((tau, res, h_exp, h_exp - h_expect_0.real))
+                print("debug:", (tau, res, h_exp, h_exp - h_expect_0.real))
                 
                 taus.append(tau)
                 ress.append(res)
@@ -1057,20 +1057,20 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
         attempt = 1
         while attempt < 3:
             try:
-                log.debug("CG: Bracketing...")
+                print("debug: CG: Bracketing...")
                 xa, xb, xc, fa, fb, fc, funcalls = opti.bracket(f, xa=brack_init[0], 
                                                                 xb=brack_init[1], 
                                                                 maxiter=5)                                                
                 brack = (xa, xb, xc)
-                log.debug("CG: Using bracket = " + str(brack))
+                print("debug: CG: Using bracket = " + str(brack))
                 break
             except RuntimeError:
-                log.debug("CG: Bracketing failed, attempt %u." % attempt)
+                print("debug: CG: Bracketing failed, attempt %u." % attempt)
                 brack_init = (brack_init[0] * 0.1, brack_init[1] * 0.1)
                 attempt += 1
         
         if attempt == 3:
-            log.debug("CG: Bracketing failed. Aborting!")
+            print("debug: CG: Bracketing failed. Aborting!")
             tau_opt = 0
             h_min = h_expect_0.real
         else:
@@ -1084,7 +1084,7 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
                 i = taus.index(tau_opt)
                 h_min = hs[i]
             except ValueError:
-                log.debug("CG: Bad bracket. Aborting!")
+                print("debug: CG: Bad bracket. Aborting!")
                 tau_opt = 0
                 h_min = h_expect_0.real
             
@@ -1125,13 +1125,13 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
         
         if reset:
             beta = 0.
-            log.debug("CG RESET")
+            print("debug: CG RESET")
             
             Bs_CG = Bs
         else:
             beta = (eta**2) / eta_0**2
         
-            log.debug("BetaFR = %s", beta)
+            print("debug: BetaFR = %s" % (beta))
         
             beta = max(0, beta.real)
             
@@ -1144,23 +1144,23 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
         
         eta_low = eta < switch_threshold_eta #Energy differences become too small here...
         
-        log.debug("CG low eta: " + str(eta_low))
+        print("debug: CG low eta: " + str(eta_low))
         
         tau, h_min = self.find_min_h_brent(Bs_CG, dtau_init,
                                            verbose=verbose, 
                                            use_tangvec_overlap=eta_low)
         
         if tau == 0:
-            log.debug("CG RESET!")
+            print("debug: CG RESET!")
             Bs_CG = Bs
         elif not eta_low and h_min > h_expect:
-            log.debug("CG RESET due to energy rise!")
+            print("debug: CG RESET due to energy rise!")
             Bs_CG = Bs
             tau, h_min = self.find_min_h_brent(Bs_CG, dtau_init * 0.1, 
                                                use_tangvec_overlap=False)
         
             if h_expect < h_min:
-                log.debug("CG RESET FAILED: Setting tau=0!")
+                print("debug: CG RESET FAILED: Setting tau=0!")
                 tau = 0
         
         return Bs_CG, Bs, eta, tau
@@ -1252,7 +1252,7 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
             ncv_An = min(ncv, len(An_old)-1)
             An, conv, nstep, brkdown, mb = gexpmv(lop, An_old, dtau/2., norm_est, m=ncv_An, tol=tol)
             if not conv:
-                log.warn("Krylov exp(M)*v solver for An did not converge in %u steps for site %u.", nstep, n)
+                print("warn: Krylov exp(M)*v solver for An did not converge in %u steps for site %u." % (nstep, n))
             self.A[n] = An.reshape((self.q[n], self.D[n - 1], self.D[n]))
             self.A[n] /= sp.sqrt(m.adot(self.A[n], self.A[n]))
             return norm_est
@@ -1268,7 +1268,7 @@ class EvoMPS_TDVP_Generic(EvoMPS_MPS_Generic):
             ncv_G = min(ncv, len(Gold)-1)
             G, conv, nstep, brkdown, mb = gexpmv(lop2, Gold, -dtau/2., norm_est, m=ncv_G, tol=tol)
             if not conv:
-                log.warn("Krylov exp(M)*v solver for G did not converge in %u steps for site %u.", nstep, n)
+                print("warn: Krylov exp(M)*v solver for G did not converge in %u steps for site %u." % (nstep, n))
             G = G.reshape((self.D[n], self.D[n]))
             G /= sp.sqrt(m.adot(G, G))
             return G

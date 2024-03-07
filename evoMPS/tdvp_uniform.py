@@ -363,8 +363,8 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
 #            QEQ = Ex - self.r * m.adot(self.l, self.K)
 #            res = self.K - QEQ
 #            if not np.allclose(res, QHr):
-#                log.warning("Sanity check failed: Bad K!")
-#                log.warning("Off by: %s", la.norm(res - QHr))
+#                print("warning: Sanity check failed: Bad K!")
+#                print("warning: Off by: %s" % (la.norm(res - QHr)))
         
     def calc_K_l(self):
         """Generates the left K matrix.
@@ -448,8 +448,8 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
 #            QEQ = xE - self.l * m.adot(self.r, self.K_left)
 #            res = self.K_left - QEQ
 #            if not np.allclose(res, lHQ):
-#                log.warning("Sanity check failed: Bad K_left!")
-#                log.warning("Off by: %s", la.norm(res - lHQ))
+#                print("warning: Sanity check failed: Bad K_left!")
+#                print("warning: Off by: %s" % (la.norm(res - lHQ)))
         
         return self.K_left, h
         
@@ -541,7 +541,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
                 #Test gauge-fixing:
                 tst = tm.eps_r_noop(self.r[k], B[k], self.A[k])
                 if not np.allclose(tst, 0):
-                    log.warning("Sanity check failed: Gauge-fixing violation! %s", la.norm(tst))
+                    print("warning: Sanity check failed: Gauge-fixing violation! %s" % (la.norm(tst)))
             
         self.Vsh = Vsh
         self.eta = sp.sqrt(self.eta_sq.sum())
@@ -670,7 +670,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
                     self.A[k][:, :oldD, oldD:] = -1.j * sp.sqrt(dtau) * BB1[k]
                     self.A[k][:, oldD:, :oldD] = -1.j * sp.sqrt(dtau) * BB2[k]
                     self.A[k][:, oldD:, oldD:].fill(0)
-                log.info("Dynamically expanded! New D: %d", self.D)
+                print("info: Dynamically expanded! New D: %d" % (self.D))
             else:
                 for k in range(self.L):
                     self.A[k] += -dtau * B[k]
@@ -820,11 +820,11 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
                                  return_eigenvectors=return_eigenvectors, 
                                  maxiter=max_itr, tol=tol, sigma=sigma)
             except las.ArpackNoConvergence:
-                log.warning("excite_top_triv: Retry %u!", i)
+                print("warning: excite_top_triv: Retry %u!" % (i))
                 v0 = None
                 ncv = max(20, nev * (3 + i))
                 if i == max_retries - 1:
-                    log.error("excite_top_triv: Failed to converge!")
+                    print("error: excite_top_triv: Failed to converge!")
                     raise EvoMPSNoConvergence('excite_top_triv')
                           
         return res
@@ -842,7 +842,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             H[:, i] = op.matvec(x)
 
         if not np.allclose(H, H.conj().T):
-            log.warning("Warning! H is not Hermitian! %s", la.norm(H - H.conj().T))
+            print("warning: Warning! H is not Hermitian! %s" % (la.norm(H - H.conj().T)))
         
         if return_H:
             return la.eigh(H, eigvals_only=not return_eigenvectors), H
@@ -949,11 +949,11 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
                                     return_eigenvectors=return_eigenvectors, 
                                     maxiter=max_itr, tol=tol, ncv=ncv)
             except las.ArpackNoConvergence:
-                log.warning("excite_top_nontriv: Retry %u!", i)
+                print("warning: excite_top_nontriv: Retry %u!" % (i))
                 v0 = None
                 ncv = max(20, nev * (3 + i))
                 if i == max_retries - 1:
-                    log.error("excite_top_nontriv: Failed to converge!")
+                    print("error: excite_top_nontriv: Failed to converge!")
                     raise EvoMPSNoConvergence('excite_top_nontriv')
                           
         return res
@@ -976,7 +976,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             H[:, i] = op.matvec(x)
 
         if not np.allclose(H, H.conj().T):
-            log.warning("Warning! H is not Hermitian! %s", la.norm(H - H.conj().T))
+            print("warning: Warning! H is not Hermitian! %s" % (la.norm(H - H.conj().T)))
         
         if return_H:
             return la.eigh(H, eigvals_only=not return_eigenvectors), H
@@ -1216,12 +1216,12 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             d, ev, lL = self.fidelity_per_site(other, full_output=True, left=True)
             d, ev, rL = self.fidelity_per_site(other, full_output=True, left=False)
             if not abs(1 - d) < 1E-12:
-                log.warning("Warning! Attempt to calculate tangent vector overlap for non-equivalent states.", d)
+                print("warning: Warning! Attempt to calculate tangent vector overlap for non-equivalent states." % (d))
             l = [None] * L
             r = [None] * L
             nrm = abs(m.adot(lL, rL))
             if not abs(nrm - 1) < 1E-12:
-                log.warning("Warning! Normalization error in _B_overlap.", nrm)
+                print("warning: Warning! Normalization error in _B_overlap." % (nrm))
             l[-1] = lL.reshape(self.l[-1].shape)
             r[-1] = rL.reshape(self.r[-1].shape)
 
@@ -1414,7 +1414,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
     
         if reset:
             beta = 0.
-            log.debug("CG RESET")
+            print("debug: CG RESET")
             
             BCG = BG
         else:
@@ -1424,12 +1424,12 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             else:
                 beta = BGdotBG / BG0dotBG0 #FR
         
-            log.debug("Beta = %s", beta)
+            print("debug: Beta = %s" % (beta))
             
             beta = max(0, beta.real)
             
             if beta > 100:
-                log.warning("CG: RESET due to large beta!")
+                print("warning: CG: RESET due to large beta!")
                 BCG = BG
             else:
                 BCG0, BCG0x = self._B_to_B_GF(BCG0)
@@ -1440,7 +1440,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
         ls = EvoMPS_line_search(self, BCG, BG, B_overlap_tol=B_overlap_tol)
         g0 = ls.gs[0].real
         if g0 > 0:
-            log.info("CG: RESET due to bad search direction.")
+            print("info: CG: RESET due to bad search direction.")
             self.update() #Restores CF
             BG = self.calc_B()
             BCG = BG
@@ -1453,10 +1453,10 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             tau = 0
 
         if tau == 0:
-            log.warning("CG RESET with dtau_init due to failed line search!")
+            print("warning: CG RESET with dtau_init due to failed line search!")
             retry = True
         elif h_min - ls.hs[0] > max(self.itr_rtol * 10, 1E-14):
-            log.warning("CG RESET with dtau_init due to energy increase!")
+            print("warning: CG RESET with dtau_init due to energy increase!")
             retry = True
         else:
             retry = False
@@ -1476,7 +1476,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             self.rL_before_CF = ls.rLs[ind]
             self.K0_init = ls.K0s[ind]
         else:
-            log.warning("CG retries failed. Taking a small GD step.")
+            print("warning: CG retries failed. Taking a small GD step.")
             tau = tau_init #If all else fails, take a blind imtime step
         
         return BCG, BG, BGdotBG, tau
@@ -1540,7 +1540,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             self.expand_D(newD, refac, imfac)
             self.lL_before_CF = self.l[-1]
             self.rL_before_CF = self.r[-1]
-            log.warning("EXPANDED!")
+            print("warning: EXPANDED!")
         elif truncate and len(newA) == self.L and (len(newA[0].shape) == 3) \
                 and (newA[0].shape[0] == self.A[0].shape[0]) \
                 and (newA[0].shape[1] == newA[0].shape[2]) \
@@ -1554,7 +1554,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             self.r[-1] = np.asarray(newrL)
             self.update()  # to make absolutely sure we're in CF
             self.truncate(newD, update=True)
-            log.warning("TRUNCATED!")
+            print("warning: TRUNCATED!")
         elif expand_q and len(newA) == self.L and (len(newA[0].shape) == 3) and (
         newA[0].shape[0] <= self.A[0].shape[0]) and (newA[0].shape[1] == 
         newA[0].shape[2]) and (newA[0].shape[1] == self.A[0].shape[1]):
@@ -1568,7 +1568,7 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             self.expand_q(newQ)
             self.lL_before_CF = self.l[-1]
             self.rL_before_CF = self.r[-1]
-            log.warning("EXPANDED in q!")
+            print("warning: EXPANDED in q!")
         elif shrink_q and len(newA) == self.L and (len(newA[0].shape) == 3) and (
         newA[0].shape[0] >= self.A[0].shape[0]) and (newA[0].shape[1] == 
         newA[0].shape[2]) and (newA[0].shape[1] == self.A[0].shape[1]):
@@ -1582,9 +1582,9 @@ class EvoMPS_TDVP_Uniform(EvoMPS_MPS_Uniform):
             self.shrink_q(newQ)
             self.lL_before_CF = self.l[-1]
             self.rL_before_CF = self.r[-1]
-            log.warning("SHRUNK in q!")
+            print("warning: SHRUNK in q!")
         else:
-            log.error("Failed to import state!")
+            print("error: Failed to import state!")
             return False
             
         if do_update:
@@ -1813,13 +1813,13 @@ class EvoMPS_line_search():
     def f(self, tau, *args):
         if self.penalise_neg and tau < 0:
             g = tau**2 + self.gs[0].real
-            log.debug((tau, g, "punishing negative tau!"))
+            print("debug:", (tau, g, "punishing negative tau!"))
             self.add_res(tau, self.hs[0], self.gs[0], self.lLs[0], 
                          self.rLs[0], self.K0s[0], False)
             return g
         try:
             i = self.taus.index(tau)
-            log.debug((tau, self.gs[i], "from stored"))
+            print("debug:", (tau, self.gs[i], "from stored"))
             return self.gs[i].real
         except ValueError:
             for k in range(self.tdvp.L):
@@ -1840,7 +1840,7 @@ class EvoMPS_line_search():
             wol = self.wolfe(g, h_exp, tau)
             K0 = self.tdvp.K[0].copy()
             
-            log.debug((tau, g, h_exp, h_exp - self.hs[0], wol,
+            print("debug:", (tau, g, h_exp, h_exp - self.hs[0], wol,
                        self.tdvp.itr_l, self.tdvp.itr_r))
             
             self.add_res(tau, h_exp, g, self.tdvp.l[-1].copy(), 
@@ -1886,7 +1886,7 @@ class EvoMPS_line_search():
         g_init = self.gs[i]
                   
         if self.wolfe(g_init, self.hs[i], tau_init):
-            log.debug("CG: Using initial step, since Wolfe satisfied!")
+            print("debug: CG: Using initial step, since Wolfe satisfied!")
             tau_opt = tau_init
         else:
             self.in_search = True
@@ -1911,11 +1911,11 @@ class EvoMPS_line_search():
                 try:
                     tau_opt = opti.brentq(self.f, taus[0], taus[-1], xtol=tol, maxiter=max_iter)
                 except ValueError:
-                    log.warning("CG: Failed to find a valid bracket.")
+                    print("warning: CG: Failed to find a valid bracket.")
                     return 0, self.hs[0], 0 #fail
                 
             except EvoMPS_line_search_wolfe_sat as e:
-                log.debug("CG: Aborting early due to Wolfe")
+                print("debug: CG: Aborting early due to Wolfe")
                 tau_opt = e.tau
                 
         i = self.taus.index(tau_opt)
@@ -1925,7 +1925,7 @@ class EvoMPS_line_search():
         return tau_opt, h_min, i
         
     def bracket_extrap(self, dtau_init, fac_red=0.9, fac_inc=1.1, max_itr=20, max_deg=3, max_points=5):
-        log.debug("CG: Polynomial extrapolation BEGIN")
+        print("debug: CG: Polynomial extrapolation BEGIN")
         g0 = self.f(dtau_init)
 
         tau1 = dtau_init
@@ -1958,10 +1958,10 @@ class EvoMPS_line_search():
             i += 1
             
         if i == max_itr:
-            log.debug("CG: Polynomial extrapolation MAX ITR")
+            print("debug: CG: Polynomial extrapolation MAX ITR")
             return None
         else:
-            log.debug("CG: Polynomial extrapolation DONE")
+            print("debug: CG: Polynomial extrapolation DONE")
             return sorted([tau_prev, tau1])
 
     def bracket_step(self, dtau_init, fac_red=0.1, fac_inc=2.5, max_itr=10):

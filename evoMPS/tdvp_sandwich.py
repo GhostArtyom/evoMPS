@@ -795,7 +795,7 @@ class EvoMPS_TDVP_Sandwich(EvoMPS_MPS_Sandwich):
                         sv_tol=sv_tol)
 
                 #if BB12[n] is None:
-                #    log.warn("calc_BB_2s: Could not calculate BB_2s at n=%u", n)
+                #    print("warn: calc_BB_2s: Could not calculate BB_2s at n=%u" % (n))
         return BB12, BB21, dD
 
     def take_step(self, dtau, B=None, dynexp=False, dD_max=16, D_max=0, sv_tol=1E-14):

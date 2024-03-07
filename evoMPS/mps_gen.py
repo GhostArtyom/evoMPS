@@ -336,7 +336,7 @@ class EvoMPS_MPS_Generic(object):
                 data = self.auto_truncate(update=False, 
                                           return_update_data=not restore_CF_after_trunc)
                 if data:
-                    log.info("Auto-truncated! New D: %s", self.D)
+                    print("info: Auto-truncated! New D: %s" % (self.D))
                     if restore_CF_after_trunc:
                         self.restore_CF(normalize=normalize)
                     else:
@@ -454,7 +454,7 @@ class EvoMPS_MPS_Generic(object):
                                      sc_data="restore_RCF_r")
 
             if not self._are_bond_dims_synced():
-                log.info("Bond dimension changed during restore_RCF.")
+                print("info: Bond dimension changed during restore_RCF.")
                 A = copy.copy(self.A)
                 r = copy.copy(self.r)
                 self.set_state_from_tensors(A, do_update=False)
@@ -478,7 +478,7 @@ class EvoMPS_MPS_Generic(object):
 
         if self.sanity_checks:
             if not sp.allclose(self.r[0].A, norm**2, atol=1E-12, rtol=1E-12):
-                log.warning("Sanity Fail in restore_RCF!: r_0 is bad / norm failure: %g vs. %g", self.r[0].A.real, norm**2)
+                print("warning: Sanity Fail in restore_RCF!: r_0 is bad / norm failure: %g vs. %g" % (self.r[0].A.real, norm**2))
         
         if diag_l:
             G = tm.restore_RCF_l_seq(self.A, self.l, sanity_checks=self.sanity_checks,
@@ -486,13 +486,13 @@ class EvoMPS_MPS_Generic(object):
 
             if self.sanity_checks:
                 if not sp.allclose(self.l[self.N].A, norm**2, atol=1E-12, rtol=1E-12):
-                    log.warning("Sanity Fail in restore_RCF!: l_N is bad / norm failure: %g vs. %g", self.l[self.N].A.real, norm**2)
+                    print("warning: Sanity Fail in restore_RCF!: l_N is bad / norm failure: %g vs. %g" % (self.l[self.N].A.real, norm**2))
                 
                 for n in range(1, self.N + 1):
                     r_nm1 = tm.eps_r_noop(self.r[n], self.A[n], self.A[n])
                     #r_nm1 = tm.eps_r_noop(m.eyemat(self.D[n], self.typ), self.A[n], self.A[n])
                     if not sp.allclose(r_nm1, self.r[n - 1], atol=1E-11, rtol=1E-11):
-                        log.warning("Sanity Fail in restore_RCF!: r_%u is bad (off by %g)", n, la.norm(r_nm1 - self.r[n - 1]))
+                        print("warning: Sanity Fail in restore_RCF!: r_%u is bad (off by %g)" % (n, la.norm(r_nm1 - self.r[n - 1])))
         elif update_l:
             self.calc_l()
             
@@ -506,7 +506,7 @@ class EvoMPS_MPS_Generic(object):
                                      sc_data="restore_LCF_l")
 
             if not self._are_bond_dims_synced():
-                log.info("Bond dimension changed during restore_LCF.")
+                print("info: Bond dimension changed during restore_LCF.")
                 A = copy.copy(self.A)
                 l = copy.copy(self.l)
                 self.set_state_from_tensors(A, do_update=False)
@@ -530,7 +530,7 @@ class EvoMPS_MPS_Generic(object):
         if self.sanity_checks:
             lN = tm.eps_l_noop(self.l[self.N - 1], self.A[self.N], self.A[self.N])
             if not sp.allclose(lN, norm**2, atol=1E-12, rtol=1E-12):
-                log.warning("Sanity Fail in restore_LCF!: l_N is bad / norm failure")
+                print("warning: Sanity Fail in restore_LCF!: l_N is bad / norm failure")
         
         if diag_r:
             tm.restore_LCF_r_seq(self.A, self.r, sanity_checks=self.sanity_checks,
@@ -538,13 +538,13 @@ class EvoMPS_MPS_Generic(object):
     
             if self.sanity_checks:
                 if not sp.allclose(self.r[0].A, norm**2, atol=1E-12, rtol=1E-12):
-                    log.warning("Sanity Fail in restore_LCF!: r_0 is bad / norm failure")
-                    log.warning("r_0 = %s", self.r[0].squeeze().real)
+                    print("warning: Sanity Fail in restore_LCF!: r_0 is bad / norm failure")
+                    print("warning: r_0 = %s" % (self.r[0].squeeze().real))
                 
                 for n in range(1, self.N + 1):
                     l = tm.eps_l_noop(self.l[n - 1], self.A[n], self.A[n])
                     if not sp.allclose(l, self.l[n], atol=1E-11, rtol=1E-11):
-                        log.warning("Sanity Fail in restore_LCF!: l_%u is bad (off by %g)", n, la.norm(l - self.l[n]))
+                        print("warning: Sanity Fail in restore_LCF!: l_%u is bad (off by %g)" % (n, la.norm(l - self.l[n])))
         elif update_r:
             self.calc_r()
                     
